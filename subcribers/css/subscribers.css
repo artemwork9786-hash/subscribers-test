@@ -158,7 +158,6 @@
   box-sizing: border-box;
 }
 
-/* ============ BODY ============ */
 body {
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
   font-size: 13px;
@@ -167,7 +166,6 @@ body {
   line-height: 1.4;
 }
 
-/* ============ MAIN CONTAINER ============ */
 .main-container {
   background: #FFFFFF;
   margin: 20px;
@@ -175,28 +173,23 @@ body {
   padding-top: 35px;
   border-radius: 4px;
   height: max-content;
-
 }
 
-/* Page Header */
 .page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 20px;
   padding-bottom: 20px;
-
 }
 
 .page-header__title {
   margin-top: 10px;
-
   font-family: var(--font-family);
   font-weight: 400;
   font-size: 27px;
   line-height: 137%;
   color: #62560e;
-
 }
 
 .page-header__actions {
@@ -216,10 +209,8 @@ body {
 
 .page-header__right {
   width: 837px;
-
 }
 
-/* ============ BUTTONS ============ */
 .button {
   display: inline-flex;
   align-items: center;
@@ -234,14 +225,11 @@ body {
   transition: 150ms;
   line-height: 1;
   padding: 0 20px;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #62560e;
-
-  /* Фикс центрирования - компенсация выступов строчных букв */
   padding-top: 14px;
   padding-bottom: 12px;
 }
@@ -252,7 +240,6 @@ body {
   font-size: 21px;
   line-height: 137%;
   color: #4dac0d;
-
 }
 
 .button:active {}
@@ -272,8 +259,6 @@ body {
   transition: fill 0.2s ease;
 }
 
-
-/* ============ CUSTOM SELECT ============ */
 .custom-select {
   position: relative;
   width: 100%;
@@ -285,13 +270,10 @@ body {
   margin-bottom: 6px;
   display: block;
   font-family: 'Roboto', sans-serif;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 20px;
   color: #000;
-
-
   position: absolute;
   top: -30px;
   left: 17px;
@@ -306,13 +288,11 @@ body {
   border-radius: 4px;
   background: #FFFEFB;
   cursor: pointer;
-
   line-height: 1;
   min-height: 34px;
   padding-top: 9px;
   padding-bottom: 7px;
   height: 50px;
-
   user-select: none;
 }
 
@@ -326,13 +306,11 @@ body {
 
 .custom-select__value {
   flex: 1;
-
   font-family: var(--second-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #62560e;
-
 }
 
 .custom-select__value--selected {
@@ -413,13 +391,11 @@ body {
   padding: 8px 12px;
   cursor: pointer;
   transition: all 0.15s;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #4e4a4a;
-
 }
 
 .custom-select__option:hover {
@@ -432,12 +408,11 @@ body {
   background: #FCFCFC;
 }
 
-/* ============ FILTERS ROW ============ */
 .filters-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
   flex-wrap: wrap;
 }
 
@@ -445,25 +420,20 @@ body {
   display: flex;
   align-items: center;
   padding: 10px;
-
   border: 0.30px solid rgba(98, 86, 14, 0.45);
   border-radius: 4px;
-
   height: 50px;
-
 }
 
 .filter-item__label {
   text-transform: uppercase;
   white-space: nowrap;
   letter-spacing: 0.5px;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #62560e;
-
 }
 
 .filter-item__input {
@@ -472,9 +442,7 @@ body {
   font-size: 21px;
   line-height: 137%;
   border: none;
-
   color: #0087fc;
-
 }
 
 .filter-item__input:focus {
@@ -491,7 +459,6 @@ body {
   width: 100px;
 }
 
-/* Дата - ссылка */
 .filter-item__date {
   font-family: var(--font-family);
   font-weight: 400;
@@ -515,15 +482,12 @@ body {
 }
 
 .filter-item__link {
-
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #62560e;
-
   font-family: var(--second-family);
   color: #0087fc;
-
 }
 
 .filter-item__link:hover {
@@ -531,7 +495,6 @@ body {
   text-decoration: underline;
 }
 
-/* Subs Count Resizable */
 .subs-count-link {
   display: inline-flex;
   align-items: center;
@@ -542,10 +505,7 @@ body {
   transition: all 0.2s;
 }
 
-/* ============ IMPORT BUTTON ============ */
 .import-button {
-
-
   border: 0.30px solid rgba(98, 86, 14, 0.45);
   padding: 0px 0px 0px 15px;
   width: 246px;
@@ -557,11 +517,9 @@ body {
   color: #9c9c9c;
   background-color: #fff;
   text-transform: uppercase;
-
   display: flex;
   align-items: center;
   column-gap: 9px;
-
   cursor: pointer;
 
   & .import-button--hilight {
@@ -569,7 +527,6 @@ body {
     align-items: center;
     gap: 16px;
     color: #59c90e;
-
   }
 
   &:hover .import-button--hilight {
@@ -581,9 +538,6 @@ body {
   }
 }
 
-
-
-
 .import-button__icon {
   width: 16px;
   height: 16px;
@@ -592,40 +546,26 @@ body {
   justify-content: center;
 }
 
-/* ============ PER PAGE SELECT ============ */
 .per-page-select {
   position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Центрируем по горизонтали, если нужно */
-
-  /* Стили рамки и скругления */
   border: 0.3px solid rgba(98, 86, 14, 0.45);
   border-radius: 3px;
   background: #fffefb;
   cursor: pointer;
   transition: all 0.2s;
-
-  /* Типографика (без дублей, строго по ТЗ) */
   font-family: var(--font-family), 'Roboto', sans-serif;
   font-weight: 300;
   font-size: 21px;
   line-height: 1;
-  /* Чтобы высота строки была равна высоте самих цифр */
   color: #62560e;
-
-  /* Размеры и геометрия */
   width: max-content;
   box-sizing: border-box;
-  /* Важно, чтобы паддинги не взрывали размеры */
-
-  /* Вместо жесткого height: 50px и огромных паддингов, 
-     подбираем точные отступы под общую высоту 50px */
   padding: 0 14px 0 16px;
   height: 50px;
 }
-
 
 .per-page-select:hover {
   border-color: #B0B0B0;
@@ -696,8 +636,6 @@ body {
   background: #FCFCFC;
 }
 
-
-/* ============ PAGINATION ============ */
 .pagination {
   display: flex;
   align-items: center;
@@ -718,7 +656,6 @@ body {
   cursor: pointer;
   user-select: none;
   position: relative;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
@@ -730,21 +667,16 @@ body {
 .pagination__item:hover {
   background: #F5F5F5;
   border-color: #B0B0B0;
-
   border: 0.30px solid #0087fc;
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #0087fc;
-
-
-
 }
 
 .pagination__item--active {
   background: #0087fc;
-
   color: #FFFFFF;
   border-color: #0087fc;
 }
@@ -766,7 +698,6 @@ body {
   border: 1px solid #0087fc;
   color: #0087fc;
   font-size: 16px;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 16px;
@@ -774,13 +705,11 @@ body {
   letter-spacing: 0.01em;
   text-align: center;
   color: #0087fc;
-
 }
 
 .pagination__item--link:hover {
   background: #E8F4FF;
   font-size: 16px;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 16px;
@@ -790,7 +719,6 @@ body {
   color: #0087fc;
 }
 
-/* Tooltip */
 .pagination-tooltip {
   position: fixed;
   padding: 6px 10px;
@@ -810,7 +738,6 @@ body {
   opacity: 1;
 }
 
-/* ============ CHECKBOXES ============ */
 .checkboxes-row {
   display: flex;
   align-items: center;
@@ -837,17 +764,11 @@ body {
   border: 0.5px solid #86868a;
   border-radius: 3px;
   box-sizing: border-box;
-
-  /* Flexbox гарантирует идеальное центрирование без размытия */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
   flex-shrink: 0;
-  /* Чекбокс никогда не сожмется от длинного текста */
-
-  /* Фикс для Firefox */
   appearance: none;
   -moz-appearance: none;
   -webkit-appearance: none;
@@ -860,23 +781,15 @@ body {
 
 .checkbox-item__label {
   transition: color 0.2s;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   color: #62560e;
-
-  /* Фикс для Firefox - выравнивание текста */
   display: inline-flex;
   align-items: center;
   line-height: 1.37;
 }
 
-/* .checkbox-item__label--active {
-  color: #0087FC;
-} */
-
-/* ============ TABLE ============ */
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -889,7 +802,6 @@ body {
   background: #fff;
 }
 
-/* Нумерация строк */
 .row-number {
   font-family: var(--font-family);
   font-weight: 300;
@@ -904,7 +816,6 @@ body {
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
-
   color: #0087fc;
 }
 
@@ -916,10 +827,8 @@ body {
   cursor: pointer;
   user-select: none;
   position: relative;
-
   padding-top: 11px;
   padding-bottom: 9px;
-
   text-transform: uppercase;
   letter-spacing: 0.3px;
   font-family: var(--font-family);
@@ -927,14 +836,10 @@ body {
   font-size: 21px;
   line-height: 120%;
   color: #4e4a4a;
-
-
 }
 
 .table__header-cell--hilight {
   color: #0087fc;
-
-
 }
 
 .table__header-cell:not(:first-child) {
@@ -1001,7 +906,6 @@ body {
 .table__search-input {
   width: 100%;
   padding: 6px 36px 6px 36px;
-
   border-radius: 3px;
   font-size: 18px;
   color: #4E4A4A;
@@ -1017,7 +921,6 @@ body {
 
 .table__search-clear {
   display: none;
-
   position: absolute;
   right: 6px;
   width: 14px;
@@ -1044,13 +947,10 @@ body {
   &:active svg * {
     fill: #62560e !important;
   }
-
 }
 
 .table__search-clear--visible {
   display: inline-flex;
-
-
 }
 
 .table__row {
@@ -1070,24 +970,18 @@ body {
   padding: 10px 12px;
   padding-top: 11px;
   padding-bottom: 9px;
-
   user-select: text;
   border-right: 1px solid #E0E0E0;
-
   color: #62560e;
   white-space: nowrap;
   overflow-x: hidden;
-
-  /* Фикс высоты строки ~50px */
   height: 50px;
   box-sizing: border-box;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #0f0f0f;
-
 }
 
 .table__cell--name {
@@ -1117,15 +1011,12 @@ body {
 
 .table__cell--number {
   text-align: center;
-
 }
 
 .table__cell--center {
   text-align: center;
-
 }
 
-/* Highlighted search matches */
 .search-highlight {
   color: #0087FC;
   font-weight: 600;
@@ -1137,13 +1028,11 @@ body {
 
 .table__search-cell--dog-label {
   text-align: center;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #62560e;
-
 }
 
 .dog-filter-da {
@@ -1152,16 +1041,13 @@ body {
   border-radius: 3px;
 }
 
-
 .dog-filter-da--active {
   background-color: #bea513;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #fff;
-
 }
 
 .dog-filter-net {
@@ -1170,19 +1056,15 @@ body {
   border-radius: 3px;
 }
 
-
 .dog-filter-net--active {
   background-color: #bea513;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #fff;
-
 }
 
-/* ============ DOG TOGGLE SWITCH ============ */
 .dog-toggle {
   position: relative;
   display: inline-flex;
@@ -1246,11 +1128,6 @@ body {
   color: #fff;
 }
 
-
-
-
-
-/* ============ DELETE ICON ============ */
 .delete-icon {
   display: inline-flex;
   align-items: center;
@@ -1273,7 +1150,6 @@ body {
   color: #a03226;
 }
 
-/* ============ HISTORY BLOCK ============ */
 .history-block {
   background: #FFFFFF;
   margin: 20px;
@@ -1287,9 +1163,7 @@ body {
   font-size: 27px;
   line-height: 137%;
   color: #62560e;
-
   margin-bottom: 20px;
-
 }
 
 .history-block__title-text {
@@ -1298,7 +1172,6 @@ body {
   font-size: 27px;
   line-height: 137%;
   color: #62560e;
-
 }
 
 .history-table {
@@ -1320,13 +1193,11 @@ body {
   font-family: 'Roboto', sans-serif;
   text-transform: capitalize;
   letter-spacing: 0.3px;
-
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #4e4a4a;
-
 }
 
 .history-table__header-cell:last-child {
@@ -1358,7 +1229,6 @@ body {
   border-right: none;
 }
 
-/* ============ TOOLTIP ============ */
 .tooltip {
   position: relative;
 }
@@ -1386,7 +1256,6 @@ body {
   opacity: 1;
 }
 
-/* ============ STATIC ICON SVG ============ */
 .has-static-icon {
   position: relative;
   display: inline-block;
@@ -1415,7 +1284,6 @@ body {
   opacity: 0;
 }
 
-/* Delete icon animation */
 .delete-btn:hover .vi-delete.has-static-icon .static-icon-default,
 .delete-btn:active .vi-delete.has-static-icon .static-icon-default {
   opacity: 0;
@@ -1433,7 +1301,6 @@ body {
   opacity: 1;
 }
 
-/* Import button animation */
 .import-btn:hover .vi-xlsx.has-static-icon .static-icon-default {
   opacity: 0;
 }
@@ -1450,7 +1317,6 @@ body {
   opacity: 1;
 }
 
-/* Vi classes for icon fonts */
 .vi-delete {
   position: relative;
   display: inline-block;
@@ -1473,7 +1339,6 @@ body {
   line-height: 0;
 }
 
-/* Delete button wrapper */
 .delete-btn {
   display: inline-flex;
   align-items: center;
@@ -1486,7 +1351,6 @@ body {
   height: 24px;
 }
 
-/* ============ DOUBLE CALENDAR ============ */
 .double-calendar {
   position: fixed;
   display: none;
@@ -1561,7 +1425,6 @@ body {
   border-color: rgba(0, 135, 252, 0.3);
 }
 
-/* Year menu */
 .double-calendar__year-menu {
   position: fixed;
   display: none;
@@ -1684,7 +1547,6 @@ body {
   font-weight: 600;
 }
 
-/* ============ VISUALLY HIDDEN ============ */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -1696,7 +1558,6 @@ body {
   clip: rect(0 0 0 0);
 }
 
-/* ============ PAGE BREADCRUMB ============ */
 .page-breadcrumb {
   font-size: 12px;
   color: #999;
@@ -1704,12 +1565,10 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-/* ============ RESPONSIVE TABLE ============ */
 .table-wrapper {
   overflow-x: auto;
 }
 
-/* ============ LOG LINK ============ */
 .log-link {
   color: #0087FC;
   text-decoration: none;
@@ -1722,7 +1581,6 @@ body {
   text-decoration: underline;
 }
 
-/* ============ HISTORY PAGE STYLES ============ */
 .history-page {
   background: #FFFCEC;
   min-height: 100vh;
@@ -1739,7 +1597,6 @@ body {
   border-radius: 4px;
 }
 
-/* ============ SEPARATOR ============ */
 .nav-separator {
   height: 1px;
   background: #E0E0E0;
