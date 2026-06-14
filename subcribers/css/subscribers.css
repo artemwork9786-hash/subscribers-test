@@ -752,6 +752,7 @@ body {
 .pagination__item--active:hover {
   background: #006fd6;
   border-color: #006fd6;
+  color: #FFFFFF;
 }
 
 .pagination__item--disabled {}
