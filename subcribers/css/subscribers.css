@@ -436,7 +436,7 @@ body {
 .filters-row {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
