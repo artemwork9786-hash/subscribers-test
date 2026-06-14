@@ -179,8 +179,7 @@ body {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 17px;
 }
 
 .page-header__title {
@@ -284,7 +283,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  border: 0.3px solid #8B7355;
+  border: 0.30px solid rgba(98, 86, 14, 0.45);
   border-radius: 4px;
   background: #FFFEFB;
   cursor: pointer;
@@ -340,7 +339,7 @@ body {
   margin-left: 8px;
   cursor: pointer;
   display: none;
-  color: rgba(98, 86, 14, 0.6);
+  color: rgba(98, 86, 14);
   flex-shrink: 0;
   font-size: 14px;
   line-height: 1;
@@ -639,7 +638,7 @@ body {
 .pagination {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
   margin-left: auto;
   height: 50px;
 }
@@ -858,7 +857,6 @@ body {
   content: '';
   font-size: 10px;
   opacity: 0.5;
-  margin-left: 4px;
 }
 
 .table__header-cell--sorted-asc::after {
