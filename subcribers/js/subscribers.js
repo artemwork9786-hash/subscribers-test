@@ -384,6 +384,11 @@ function resizeSubsCount(count) {
 // RENDER TABLE
 // ========================================
 function renderTable() {
+  // Сбрасываем все inline-стили перед применением фильтров
+  document.querySelectorAll('#tableBody tr').forEach(function (row) {
+    row.style.display = '';
+  });
+
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
 
@@ -875,23 +880,17 @@ function attachTableEvents() {
       if (row) {
         const id = parseInt(row.getAttribute('data-id'));
 
-        // Если фильтр "Принудительно удалённые" активен — восстанавливаем
-        if (checkboxFilters.forcedDeleted && deletedIds.has(id)) {
+        // Упрощенная логика: если в deletedIds — восстанавливаем, иначе удаляем
+        if (deletedIds.has(id)) {
           deletedIds.delete(id);
           row.classList.remove('table__row--deleted');
-          setTimeout(function () {
-            row.style.display = 'none';
-            renderTable();
-          }, 300);
-        } else if (!deletedIds.has(id)) {
-          // Обычное удаление
+        } else {
           deletedIds.add(id);
           row.classList.add('table__row--deleted');
-          setTimeout(function () {
-            row.style.display = 'none';
-            renderTable();
-          }, 300);
         }
+
+        // Убираем прямое скрытие строки — renderTable() сам управляет видимостью
+        scheduleRender();
       }
     });
   });
@@ -904,6 +903,19 @@ function attachTableEvents() {
       openHistoryTab(id);
     });
   });
+}
+
+// Механизм для предотвращения гонки состояний
+let pendingRenderTimeout = null;
+
+function scheduleRender() {
+  if (pendingRenderTimeout) {
+    clearTimeout(pendingRenderTimeout);
+  }
+  pendingRenderTimeout = setTimeout(function () {
+    renderTable();
+    pendingRenderTimeout = null;
+  }, 300);
 }
 
 // ========================================
@@ -991,7 +1003,6 @@ function attachTableEvents() {
     return 'all';
   }
 })();
-
 // ========================================
 // HISTORY TAB
 // ========================================
@@ -1303,23 +1314,18 @@ function attachHistoryEvents() {
 // ========================================
 (function initCheckboxFilters() {
   const checkboxItems = document.querySelectorAll('.checkbox-item');
-
   checkboxItems.forEach(function (item, index) {
     const input = item.querySelector('.checkbox-item__input');
     const label = item.querySelector('.checkbox-item__label');
-
-    // Определяем тип фильтра по индексу или тексту
     const filterType = getFilterType(label);
 
     item.addEventListener('click', function (e) {
       e.preventDefault();
 
-      // Для чекбокса "Все" - сбрасываем все остальные
       if (filterType === 'all') {
         const isActive = input.classList.contains('checkbox-item__input--checked');
 
         if (!isActive) {
-          // Включаем "Все", выключаем остальные
           checkboxFilters.all = true;
           checkboxFilters.dogs = false;
           checkboxFilters.unsubscribed = false;
@@ -1328,7 +1334,6 @@ function attachHistoryEvents() {
           checkboxFilters.transfer = false;
           checkboxFilters.noDuplicates = false;
 
-          // Сбрасываем кнопки в хедере (Да/Нет)
           dogFilterActive = false;
           noDogFilterActive = false;
           const daFilter = document.querySelector('.dog-filter-da');
@@ -1336,7 +1341,8 @@ function attachHistoryEvents() {
           if (daFilter) daFilter.classList.remove('dog-filter-da--active');
           if (netFilter) netFilter.classList.remove('dog-filter-net--active');
 
-          // Обновляем визуально
+          deletedIds.clear();
+
           checkboxItems.forEach(function (cb, i) {
             const inp = cb.querySelector('.checkbox-item__input');
             const lbl = cb.querySelector('.checkbox-item__label');
@@ -1348,12 +1354,14 @@ function attachHistoryEvents() {
               lbl.classList.remove('checkbox-item__label--active');
             }
           });
+
+          // ДОБАВЛЕНО: перерисовка таблицы после включения "Все"
+          currentPage = 1;
+          renderTable();
         }
-        // Если уже активен "Все" — ничего не делаем (нельзя выключить)
       } else {
         const isActive = input.classList.contains('checkbox-item__input--checked');
 
-        // Если включаем "Принудительно удалённые" — выключаем другие фильтры (кроме "Все")
         if (filterType === 'forcedDeleted' && !isActive) {
           checkboxFilters.dogs = false;
           checkboxFilters.unsubscribed = false;
@@ -1362,7 +1370,6 @@ function attachHistoryEvents() {
           checkboxFilters.noDuplicates = false;
           checkboxFilters.all = false;
 
-          // Сбрасываем кнопки в хедере (Да/Нет)
           dogFilterActive = false;
           noDogFilterActive = false;
           const daFilter = document.querySelector('.dog-filter-da');
@@ -1370,7 +1377,6 @@ function attachHistoryEvents() {
           if (daFilter) daFilter.classList.remove('dog-filter-da--active');
           if (netFilter) netFilter.classList.remove('dog-filter-net--active');
 
-          // Выключаем визуально все кроме "Принудительно удалённые"
           checkboxItems.forEach(function (cb, i) {
             const inp = cb.querySelector('.checkbox-item__input');
             const lbl = cb.querySelector('.checkbox-item__label');
@@ -1386,14 +1392,12 @@ function attachHistoryEvents() {
 
           checkboxFilters.forcedDeleted = true;
         } else if (filterType === 'dogs') {
-          // Специальная обработка для чекбокса "Собачки"
           input.classList.toggle('checkbox-item__input--checked');
           label.classList.toggle('checkbox-item__label--active');
 
           const newIsActive = input.classList.contains('checkbox-item__input--checked');
           checkboxFilters.dogs = newIsActive;
 
-          // Если включили чекбокс "Собачки" — сбрасываем кнопки в хедере
           if (newIsActive) {
             dogFilterActive = false;
             noDogFilterActive = false;
@@ -1403,7 +1407,6 @@ function attachHistoryEvents() {
             if (netFilter) netFilter.classList.remove('dog-filter-net--active');
           }
 
-          // Если включили любой фильтр кроме "Все" — выключаем "Все"
           if (newIsActive) {
             checkboxFilters.all = false;
             const allInput = checkboxItems[0].querySelector('.checkbox-item__input');
@@ -1412,14 +1415,12 @@ function attachHistoryEvents() {
             allLabel.classList.remove('checkbox-item__label--active');
           }
         } else {
-          // Переключаем остальные фильтры
           input.classList.toggle('checkbox-item__input--checked');
           label.classList.toggle('checkbox-item__label--active');
 
           const newIsActive = input.classList.contains('checkbox-item__input--checked');
           checkboxFilters[filterType] = newIsActive;
 
-          // Если включили любой фильтр кроме "Все" — выключаем "Все"
           if (newIsActive && filterType !== 'all') {
             checkboxFilters.all = false;
             const allInput = checkboxItems[0].querySelector('.checkbox-item__input');
@@ -1429,7 +1430,6 @@ function attachHistoryEvents() {
           }
         }
 
-        // Сброс на первую страницу при любом изменении фильтров
         currentPage = 1;
         renderTable();
       }
@@ -1448,7 +1448,6 @@ function attachHistoryEvents() {
     return 'all';
   }
 })();
-
 // ========================================
 // SEARCH INPUT HANDLERS
 // ========================================
