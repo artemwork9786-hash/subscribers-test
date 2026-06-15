@@ -387,6 +387,28 @@ function renderTable() {
   const tbody = document.getElementById('tableBody');
   if (!tbody) return;
 
+  // 1. Фильтр по deletedIds и forcedDeleted
+  if (checkboxFilters.forcedDeleted) {
+    filteredUsers = allUsers.filter(function (u) {
+      return deletedIds.has(u.id);
+    });
+  } else {
+    filteredUsers = allUsers.filter(function (u) {
+      return !deletedIds.has(u.id);
+    });
+  }
+
+  // 2. Filter by noDuplicates — применяем ВТОРЫМ (сразу после deletedIds/forcedDeleted)
+  if (checkboxFilters.noDuplicates && !checkboxFilters.all && !checkboxFilters.forcedDeleted) {
+    const seenNames = new Set();
+    filteredUsers = filteredUsers.filter(function (u) {
+      if (seenNames.has(u.name)) return false;
+      seenNames.add(u.name);
+      return true;
+    });
+  }
+
+  // 3. Остальные фильтры (поиск, даты, собачки, чекбоксы)
   const searchId = document.querySelector('[data-search="id"]');
   const searchName = document.querySelector('[data-search="name"]');
   const queryId = searchId ? searchId.value.trim() : '';
@@ -401,33 +423,7 @@ function renderTable() {
   // Get perPage value
   const perPage = window.perPage || itemsPerPage;
 
-  // Filter by search and dates
-  filteredUsers = allUsers.filter(function (u) {
-    const isDeleted = deletedIds.has(u.id);
-
-    // Если активен фильтр "Принудительно удалённые" — показываем ТОЛЬКО их
-    if (checkboxFilters.forcedDeleted) {
-      if (!isDeleted) return false;
-      // Для удалённых применяем ТОЛЬКО поиск и даты, игнорируем всё остальное
-      const matchesId = !queryId || startsWithAnyWord(String(u.id), queryId);
-      const matchesName = !queryName || startsWithAnyWord(u.name, queryName);
-      // Суммарная фильтрация — ИЛИ между колонками (если оба запроса не пустые)
-      const matchesSearch =
-        queryId && queryName
-          ? matchesId || matchesName
-          : queryId
-            ? matchesId
-            : queryName
-              ? matchesName
-              : true;
-      const matchesDateFrom = !dateFrom || compareDates(u.dateSub, dateFrom) >= 0;
-      const matchesDateTo = !dateTo || compareDates(u.dateSub, dateTo) <= 0;
-      return matchesSearch && matchesDateFrom && matchesDateTo;
-    } else {
-      // Обычный режим — скрываем удалённых
-      if (isDeleted) return false;
-    }
-
+  filteredUsers = filteredUsers.filter(function (u) {
     const matchesId = !queryId || startsWithAnyWord(String(u.id), queryId);
     const matchesName = !queryName || startsWithAnyWord(u.name, queryName);
     // Суммарная фильтрация — ИЛИ между колонками (если оба запроса не пустые)
@@ -445,19 +441,19 @@ function renderTable() {
     const matchesDateTo = !dateTo || compareDates(u.dateSub, dateTo) <= 0;
 
     // Filter by dog toggle (Да / Нет) - header buttons
-    if (dogFilterActive && !noDogFilterActive) {
-      // Показываем только с собачкой
-      if (!u.dog) return false;
-    } else if (!dogFilterActive && noDogFilterActive) {
-      // Показываем только без собачки
-      if (u.dog) return false;
+    // Если активен фильтр по собачкам в хедере — игнорируем чекбокс "Собачки"
+    if (dogFilterActive || noDogFilterActive) {
+      if (dogFilterActive && !u.dog) return false;
+      if (noDogFilterActive && u.dog) return false;
+    } else {
+      // Если нет фильтра в хедере — используем чекбокс
+      if (!checkboxFilters.all) {
+        if (checkboxFilters.dogs && !u.dog) return false;
+      }
     }
 
     // Filter by other checkbox filters (только если не "Все")
     if (!checkboxFilters.all) {
-      // Собачки
-      if (checkboxFilters.dogs && !u.dog) return false;
-
       // Отписавшиеся (dateUnsub не пустой)
       if (checkboxFilters.unsubscribed && !u.dateUnsub) return false;
 
@@ -470,16 +466,6 @@ function renderTable() {
 
     return matchesSearch && matchesDateFrom && matchesDateTo;
   });
-
-  // Filter by noDuplicates (after all other filters, except forcedDeleted)
-  if (checkboxFilters.noDuplicates && !checkboxFilters.all && !checkboxFilters.forcedDeleted) {
-    const seenNames = new Set();
-    filteredUsers = filteredUsers.filter(function (u) {
-      if (seenNames.has(u.name)) return false;
-      seenNames.add(u.name);
-      return true;
-    });
-  }
 
   // Debug log
   console.log('renderTable:', {
@@ -631,10 +617,10 @@ function renderPagination(totalPages) {
   });
 
   if (totalPages === 0) {
-    const firstBtn = createPaginationButton(true, 'First');
+    const firstPageBtn = createPaginationButton(true, getFirstPageIcon());
     const prevBtn = createPaginationButton(true, getPrevIcon());
+    paginationEl.appendChild(firstPageBtn);
     paginationEl.appendChild(prevBtn);
-    paginationEl.appendChild(firstBtn);
     return;
   }
 
@@ -659,8 +645,8 @@ function renderPagination(totalPages) {
     return span;
   }
 
-  // Get prev/next icons
-  function getPrevIcon() {
+  // Get icons
+  function getFirstPageIcon(isDisabled) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '30');
     svg.setAttribute('height', '30');
@@ -672,12 +658,46 @@ function renderPagination(totalPages) {
       'd',
       'M6.04504 15.0003L13.8038 22.7591L15.5713 20.9916L9.58004 15.0003L15.5713 9.00908L13.8038 7.24158L6.04504 15.0003ZM13.1075 15.0003L20.8663 22.7591L22.6338 20.9916L16.6425 15.0003L22.6338 9.00908L20.8663 7.24158L13.1075 15.0003Z',
     );
-    path.setAttribute('fill', '#D7D7D7');
+    path.setAttribute('fill', isDisabled ? '#D7D7D7' : '#62560E');
     svg.appendChild(path);
     return svg;
   }
 
-  function getNextIcon() {
+  function getPrevIcon(isDisabled) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '30');
+    svg.setAttribute('height', '30');
+    svg.setAttribute('viewBox', '0 0 30 30');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute(
+      'd',
+      'M13.1075 15.0003L20.8663 22.7591L22.6338 20.9916L16.6425 15.0003L22.6338 9.00908L20.8663 7.24158L13.1075 15.0003Z',
+    );
+    path.setAttribute('fill', isDisabled ? '#D7D7D7' : '#62560E');
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function getNextIcon(isDisabled) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', '30');
+    svg.setAttribute('height', '30');
+    svg.setAttribute('viewBox', '0 0 30 30');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute(
+      'd',
+      'M16.8925 15.0003L9.1337 22.7591L7.3662 20.9916L13.3575 15.0003L7.3662 9.00908L9.1337 7.24158L16.8925 15.0003Z',
+    );
+    path.setAttribute('fill', isDisabled ? '#D7D7D7' : '#62560E');
+    svg.appendChild(path);
+    return svg;
+  }
+
+  function getLastPageIcon(isDisabled) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('width', '30');
     svg.setAttribute('height', '30');
@@ -689,7 +709,7 @@ function renderPagination(totalPages) {
       'd',
       'M23.955 15.0003L16.1962 22.7591L14.4287 20.9916L20.42 15.0003L14.4287 9.00908L16.1962 7.24158L23.955 15.0003ZM16.8925 15.0003L9.1337 22.7591L7.3662 20.9916L13.3575 15.0003L7.3662 9.00908L9.1337 7.24158L16.8925 15.0003Z',
     );
-    path.setAttribute('fill', '#62560E');
+    path.setAttribute('fill', isDisabled ? '#D7D7D7' : '#62560E');
     svg.appendChild(path);
     return svg;
   }
@@ -697,39 +717,40 @@ function renderPagination(totalPages) {
   // Helper for ellipsis
   function createEllipsis() {
     const span = document.createElement('span');
-    span.className = 'pagination__item';
+    span.className = 'pagination__item pagination__item--ellipsis';
     span.textContent = '...';
     return span;
   }
 
-  // First page button
   const isFirstPage = currentPage === 1;
-  const firstBtn = createPaginationButton(isFirstPage, 'First');
-  paginationEl.appendChild(firstBtn);
+  const isLastPage = currentPage === totalPages;
 
-  // Prev button
-  const prevBtn = createPaginationButton(isFirstPage, getPrevIcon());
-  paginationEl.appendChild(prevBtn);
+  // First page button (double arrow)
+  const firstPageBtn = createPaginationButton(isFirstPage, getFirstPageIcon(isFirstPage));
+  paginationEl.appendChild(firstPageBtn);
 
-  // Smart pagination logic - show limited pages
-  if (totalPages <= 7) {
-    // Show all pages if 7 or less
+  // First text button
+  const firstTextBtn = createPaginationButton(isFirstPage, 'First');
+  paginationEl.appendChild(firstTextBtn);
+
+  // Page numbers logic - show up to 5 pages
+  if (totalPages <= 5) {
+    // Show all pages if 5 or less
     for (let i = 1; i <= totalPages; i++) {
       paginationEl.appendChild(createPaginationButton(false, String(i), true, i));
     }
   } else {
-    // Show: 1 ... [current-1] current [current+1] ... last
     // Always show first page
     paginationEl.appendChild(createPaginationButton(false, '1', true, 1));
 
-    if (currentPage <= 4) {
+    if (currentPage <= 3) {
       // Near start: 1 2 3 4 5 ... last
       for (let i = 2; i <= 5; i++) {
         paginationEl.appendChild(createPaginationButton(false, String(i), true, i));
       }
       paginationEl.appendChild(createEllipsis());
       paginationEl.appendChild(createPaginationButton(false, String(totalPages), true, totalPages));
-    } else if (currentPage >= totalPages - 3) {
+    } else if (currentPage >= totalPages - 2) {
       // Near end: 1 ... last-4 last-3 last-2 last-1 last
       paginationEl.appendChild(createEllipsis());
       for (let i = totalPages - 4; i <= totalPages; i++) {
@@ -746,15 +767,10 @@ function renderPagination(totalPages) {
     }
   }
 
-  // Next button
-  const isLastPage = currentPage === totalPages;
-  const nextBtn = createPaginationButton(isLastPage, getNextIcon());
+  // Next button (text with border)
+  const nextBtn = createPaginationButton(isLastPage, 'Next');
   nextBtn.classList.add('pagination__item--link');
   paginationEl.appendChild(nextBtn);
-
-  // Last page button
-  const lastBtn = createPaginationButton(isLastPage, 'Last');
-  paginationEl.appendChild(lastBtn);
 
   // Create tooltip element
   var pagTooltip = document.getElementById('paginationTooltip');
@@ -768,14 +784,16 @@ function renderPagination(totalPages) {
   function getTooltipText(item) {
     var text = item.textContent.trim();
     if (text === 'First') return 'Первая страница';
-    if (text === 'Last') return 'Последняя страница';
+    if (text === 'Next') return 'Следующая страница';
     if (text === '...') return '';
-    // Check if it's prev icon
+    var pageNum = parseInt(item.dataset.page);
+    if (!isNaN(pageNum)) return 'Страница ' + pageNum;
+    // Check icons by path data
     var path = item.querySelector('path');
-    if (path && path.getAttribute('d').startsWith('M6.045')) return 'Предыдущая страница';
-    if (path && path.getAttribute('d').startsWith('M23.955')) return 'Следующая страница';
-    var num = parseInt(text);
-    if (!isNaN(num)) return 'Страница ' + num;
+    if (path) {
+      var d = path.getAttribute('d');
+      if (d && d.indexOf('M6.04504') === 0) return 'Предыдущая страница';
+    }
     return '';
   }
 
@@ -812,30 +830,32 @@ function renderPagination(totalPages) {
       if (pageNum && !isNaN(pageNum)) {
         currentPage = pageNum;
         renderTable();
-      } else if (this.textContent === 'First') {
-        if (currentPage > 1) {
-          currentPage = 1;
-          renderTable();
-        }
-      } else if (this.textContent === 'Last') {
-        if (currentPage < totalPages) {
-          currentPage = totalPages;
-          renderTable();
-        }
-      } else if (this.innerHTML.includes('svg')) {
-        // Check if it's prev or next icon
-        var path = this.querySelector('path');
-        if (path && path.getAttribute('d').startsWith('M6.045')) {
-          // Prev
+      } else {
+        var text = this.textContent.trim();
+        if (text === 'First') {
+          // First page
           if (currentPage > 1) {
-            currentPage--;
+            currentPage = 1;
             renderTable();
           }
-        } else if (path && path.getAttribute('d').startsWith('M23.955')) {
-          // Next
+        } else if (text === 'Next') {
+          // Next page
           if (currentPage < totalPages) {
             currentPage++;
             renderTable();
+          }
+        } else {
+          // Check if it's an icon button (double arrow)
+          var path = this.querySelector('path');
+          if (path) {
+            var d = path.getAttribute('d');
+            if (d && d.indexOf('M6.04504') === 0) {
+              // Previous page (double arrow left)
+              if (currentPage > 1) {
+                currentPage--;
+                renderTable();
+              }
+            }
           }
         }
       }
@@ -907,6 +927,20 @@ function attachTableEvents() {
       noDogFilterActive = false;
       this.classList.add('dog-filter-da--active');
       netFilter.classList.remove('dog-filter-net--active');
+
+      // Сбрасываем чекбокс "Собачки" в боковом меню
+      checkboxFilters.dogs = false;
+      const dogsCheckbox = Array.from(document.querySelectorAll('.checkbox-item')).find(
+        function (item) {
+          return getFilterType(item.querySelector('.checkbox-item__label')) === 'dogs';
+        },
+      );
+      if (dogsCheckbox) {
+        const input = dogsCheckbox.querySelector('.checkbox-item__input');
+        const label = dogsCheckbox.querySelector('.checkbox-item__label');
+        input.classList.remove('checkbox-item__input--checked');
+        label.classList.remove('checkbox-item__label--active');
+      }
     }
 
     currentPage = 1; // Сброс на первую страницу
@@ -925,11 +959,37 @@ function attachTableEvents() {
       dogFilterActive = false;
       this.classList.add('dog-filter-net--active');
       daFilter.classList.remove('dog-filter-da--active');
+
+      // Сбрасываем чекбокс "Собачки" в боковом меню
+      checkboxFilters.dogs = false;
+      const dogsCheckbox = Array.from(document.querySelectorAll('.checkbox-item')).find(
+        function (item) {
+          return getFilterType(item.querySelector('.checkbox-item__label')) === 'dogs';
+        },
+      );
+      if (dogsCheckbox) {
+        const input = dogsCheckbox.querySelector('.checkbox-item__input');
+        const label = dogsCheckbox.querySelector('.checkbox-item__label');
+        input.classList.remove('checkbox-item__input--checked');
+        label.classList.remove('checkbox-item__label--active');
+      }
     }
 
     currentPage = 1; // Сброс на первую страницу
     renderTable();
   });
+
+  function getFilterType(label) {
+    const text = label.textContent.trim().toLowerCase();
+    if (text === 'все') return 'all';
+    if (text === 'собачки') return 'dogs';
+    if (text === 'отписавшиеся') return 'unsubscribed';
+    if (text === 'принудительно удалённые') return 'forcedDeleted';
+    if (text === 'добавлены в сообщество') return 'addedToCommunity';
+    if (text === 'переносить') return 'transfer';
+    if (text === 'показать без повторов') return 'noDuplicates';
+    return 'all';
+  }
 })();
 
 // ========================================
@@ -1268,6 +1328,14 @@ function attachHistoryEvents() {
           checkboxFilters.transfer = false;
           checkboxFilters.noDuplicates = false;
 
+          // Сбрасываем кнопки в хедере (Да/Нет)
+          dogFilterActive = false;
+          noDogFilterActive = false;
+          const daFilter = document.querySelector('.dog-filter-da');
+          const netFilter = document.querySelector('.dog-filter-net');
+          if (daFilter) daFilter.classList.remove('dog-filter-da--active');
+          if (netFilter) netFilter.classList.remove('dog-filter-net--active');
+
           // Обновляем визуально
           checkboxItems.forEach(function (cb, i) {
             const inp = cb.querySelector('.checkbox-item__input');
@@ -1283,16 +1351,24 @@ function attachHistoryEvents() {
         }
         // Если уже активен "Все" — ничего не делаем (нельзя выключить)
       } else {
+        const isActive = input.classList.contains('checkbox-item__input--checked');
+
         // Если включаем "Принудительно удалённые" — выключаем другие фильтры (кроме "Все")
-        if (
-          filterType === 'forcedDeleted' &&
-          !input.classList.contains('checkbox-item__input--checked')
-        ) {
+        if (filterType === 'forcedDeleted' && !isActive) {
           checkboxFilters.dogs = false;
           checkboxFilters.unsubscribed = false;
           checkboxFilters.addedToCommunity = false;
           checkboxFilters.transfer = false;
           checkboxFilters.noDuplicates = false;
+          checkboxFilters.all = false;
+
+          // Сбрасываем кнопки в хедере (Да/Нет)
+          dogFilterActive = false;
+          noDogFilterActive = false;
+          const daFilter = document.querySelector('.dog-filter-da');
+          const netFilter = document.querySelector('.dog-filter-net');
+          if (daFilter) daFilter.classList.remove('dog-filter-da--active');
+          if (netFilter) netFilter.classList.remove('dog-filter-net--active');
 
           // Выключаем визуально все кроме "Принудительно удалённые"
           checkboxItems.forEach(function (cb, i) {
@@ -1302,28 +1378,55 @@ function attachHistoryEvents() {
             if (type === 'forcedDeleted') {
               inp.classList.add('checkbox-item__input--checked');
               lbl.classList.add('checkbox-item__label--active');
-            } else if (i !== 0) {
-              // Не "Все"
+            } else {
               inp.classList.remove('checkbox-item__input--checked');
               lbl.classList.remove('checkbox-item__label--active');
             }
           });
-        } else {
-          // Переключаем текущий фильтр
+
+          checkboxFilters.forcedDeleted = true;
+        } else if (filterType === 'dogs') {
+          // Специальная обработка для чекбокса "Собачки"
           input.classList.toggle('checkbox-item__input--checked');
           label.classList.toggle('checkbox-item__label--active');
-        }
 
-        const isActive = input.classList.contains('checkbox-item__input--checked');
-        checkboxFilters[filterType] = isActive;
+          const newIsActive = input.classList.contains('checkbox-item__input--checked');
+          checkboxFilters.dogs = newIsActive;
 
-        // Если включили любой фильтр кроме "Все" — выключаем "Все"
-        if (isActive && filterType !== 'all') {
-          checkboxFilters.all = false;
-          const allInput = checkboxItems[0].querySelector('.checkbox-item__input');
-          const allLabel = checkboxItems[0].querySelector('.checkbox-item__label');
-          allInput.classList.remove('checkbox-item__input--checked');
-          allLabel.classList.remove('checkbox-item__label--active');
+          // Если включили чекбокс "Собачки" — сбрасываем кнопки в хедере
+          if (newIsActive) {
+            dogFilterActive = false;
+            noDogFilterActive = false;
+            const daFilter = document.querySelector('.dog-filter-da');
+            const netFilter = document.querySelector('.dog-filter-net');
+            if (daFilter) daFilter.classList.remove('dog-filter-da--active');
+            if (netFilter) netFilter.classList.remove('dog-filter-net--active');
+          }
+
+          // Если включили любой фильтр кроме "Все" — выключаем "Все"
+          if (newIsActive) {
+            checkboxFilters.all = false;
+            const allInput = checkboxItems[0].querySelector('.checkbox-item__input');
+            const allLabel = checkboxItems[0].querySelector('.checkbox-item__label');
+            allInput.classList.remove('checkbox-item__input--checked');
+            allLabel.classList.remove('checkbox-item__label--active');
+          }
+        } else {
+          // Переключаем остальные фильтры
+          input.classList.toggle('checkbox-item__input--checked');
+          label.classList.toggle('checkbox-item__label--active');
+
+          const newIsActive = input.classList.contains('checkbox-item__input--checked');
+          checkboxFilters[filterType] = newIsActive;
+
+          // Если включили любой фильтр кроме "Все" — выключаем "Все"
+          if (newIsActive && filterType !== 'all') {
+            checkboxFilters.all = false;
+            const allInput = checkboxItems[0].querySelector('.checkbox-item__input');
+            const allLabel = checkboxItems[0].querySelector('.checkbox-item__label');
+            allInput.classList.remove('checkbox-item__input--checked');
+            allLabel.classList.remove('checkbox-item__label--active');
+          }
         }
 
         // Сброс на первую страницу при любом изменении фильтров
