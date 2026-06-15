@@ -650,7 +650,7 @@ body {
   width: 50px;
   height: 50px;
   padding: 0;
-  border: 1px solid #D0D0D0;
+  border: 0.30px solid #D0D0D0;
   background: #fffefb;
   cursor: pointer;
   user-select: none;
@@ -663,15 +663,32 @@ body {
   transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
-.pagination__item:hover {
+.pagination__item:first-child {
+  width: 50px;
+}
+
+.pagination__item:nth-child(2) {
+  width: 50px;
+  padding: 0;
+  min-width: 50px;
+}
+
+.pagination__item:hover:not(.pagination__item--disabled) {
   background: #F5F5F5;
   border-color: #B0B0B0;
-  border: 0.30px solid #0087fc;
   font-family: var(--font-family);
   font-weight: 300;
   font-size: 21px;
   line-height: 137%;
   color: #0087fc;
+}
+
+.pagination__item:hover:not(.pagination__item--disabled) svg path {
+  fill: #0087fc;
+}
+
+.pagination__item:hover svg path {
+  fill: #0087fc;
 }
 
 .pagination__item--active {
@@ -686,36 +703,67 @@ body {
   color: #FFFFFF;
 }
 
+.pagination__item--active svg path {
+  fill: #FFFFFF;
+}
+
+.pagination__item--active:hover svg path {
+  fill: #FFFFFF;
+}
+
 .pagination__item--disabled {}
 
 .pagination__item--disabled:hover {
   background: #FFFFFF;
   border-color: #D0D0D0;
+  color: #c6c6c6;
+}
+
+.pagination__item--disabled:hover svg path {
+  fill: #D7D7D7 !important;
 }
 
 .pagination__item--link {
   border: 1px solid #0087fc;
   color: #0087fc;
-  font-size: 16px;
+  font-size: 21px;
   font-family: var(--font-family);
   font-weight: 300;
-  font-size: 16px;
-  line-height: 97%;
-  letter-spacing: 0.01em;
+  line-height: 1;
   text-align: center;
-  color: #0087fc;
+  width: 50px;
+  padding: 0;
 }
 
 .pagination__item--link:hover {
   background: #E8F4FF;
-  font-size: 16px;
-  font-family: var(--font-family);
-  font-weight: 300;
-  font-size: 16px;
-  line-height: 97%;
-  letter-spacing: 0.01em;
-  text-align: center;
   color: #0087fc;
+}
+
+.pagination__item--link.pagination__item--disabled {
+  border-color: #D0D0D0;
+  color: #D7D7D7;
+}
+
+.pagination__item--link.pagination__item--disabled:hover {
+  background: #FFFFFF;
+  color: #D7D7D7;
+}
+
+.pagination__item--ellipsis {
+  cursor: default;
+  border-color: #D0D0D0;
+  background: #fffefb;
+  color: #4E4A4A;
+  font-size: 18px;
+  width: 50px;
+  pointer-events: none;
+}
+
+.pagination__item--ellipsis:hover {
+  background: #fffefb;
+  border-color: #D0D0D0;
+  color: #4E4A4A;
 }
 
 .pagination-tooltip {
